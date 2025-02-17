@@ -22,6 +22,9 @@ public class DateTime {
 
     }
     public static String nowFormat2() throws NullPointerException{
+        //%s String yapısı
+        //%d decimal yapısı
+        //%f float yapısı
         Date now = new Date();
         return String.format("Şimdiki Zaman: %02d:%02d:%02d", now.getHours(), now.getMinutes(), now.getSeconds());
 
