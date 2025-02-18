@@ -1,6 +1,9 @@
 package com.MuhammedSosun._2_week;
 
 import java.util.Scanner;
+import java.lang.Math;
+
+
 
 public class example {
     public static void main(String[] args) {
@@ -79,10 +82,52 @@ public class example {
         System.out.println(digits + " sum of digits");
 
          */
-
-        int number ,digits = 0;
+        //take the inverse of a number
+        /*
+        int number ,a=0;
         System.out.println("Enter a number: ");
         number = scanner.nextInt();
+        while (number>0){
+
+            a = a * 10;
+            a = (number % 10) + a;
+            number = number / 10;
+
+        }
+        System.out.println(a);
+
+         */
+        //Armstrong numbers
+        /*
+        int number;
+        double b =0;
+        number=scanner.nextInt();
+        int first = number;
+        while (number > 0){
+            int a = 0;
+            a = number%10 + a;
+            number = number / 10;
+            b = Math.pow(a,3) + b;
+        }
+        if (first != b){
+            System.out.println("is not Armstrong  number");
+        }
+        else {
+            System.out.println("Armstrong  number : "+ b );
+        }
+
+         */
+
+        //Binary Numbers
+        int number,mod = 0;
+        number = scanner.nextInt();
+        while (number >=2){
+            number = number / 2;
+            mod = 10 *(number % 2);
+        }
+        System.out.println(mod);
+
+
 
 
 
