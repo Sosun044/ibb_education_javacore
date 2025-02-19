@@ -119,13 +119,27 @@ public class example {
          */
 
         //Binary Numbers
-        int number,mod = 0;
+        /*
+        Array kullanarakta yapılır sadece output olusturmak için yapılmıştır bir çok method bulunur
+        Scanner scanner = new Scanner(System.in);
+        int number = scanner.nextInt();
+        System.out.println(Integer.toBinaryString(number));  // Java'nın hazır metodu
+         */
+        int number,k = 0;
+        StringBuilder stringBuilder = new StringBuilder();
         number = scanner.nextInt();
-        while (number >=2){
+        while (number >0){
+            if (number % 2 == 1){
+                stringBuilder.append("1");
+            }
+            else {
+                stringBuilder.append("0");
+            }
             number = number / 2;
-            mod = 10 *(number % 2);
         }
-        System.out.println(mod);
+        System.out.println(stringBuilder);
+
+
 
 
 
