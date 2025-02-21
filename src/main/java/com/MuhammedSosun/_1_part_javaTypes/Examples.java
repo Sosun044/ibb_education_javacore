@@ -32,6 +32,7 @@ public class Examples {
         System.out.println("Fahrenheit : " + f);
         */
         //faktöriyel bulma
+        /*
         int a,temp = 1;
         System.out.println("Enter a number: ");
         Scanner scanner = new Scanner(System.in);
@@ -44,5 +45,20 @@ public class Examples {
         System.out.println("answer is : " + temp);
 
         scanner.close();
+
+
+         */
+        System.out.println(recursivefunc(6));
+
     }
+    public static int recursivefunc(int n){
+        if (n == 0 || n == 1){
+            return 1;
+        }
+        else
+        {
+            return n * recursivefunc(n-1);
+        }
+    }
+
 }

@@ -6,8 +6,10 @@ import java.lang.Math;
 
 
 public class example {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+
+
+
+
 
         /*
         int n,sum= 0;
@@ -125,6 +127,7 @@ public class example {
         int number = scanner.nextInt();
         System.out.println(Integer.toBinaryString(number));  // Java'nın hazır metodu
          */
+        /*
         int number,k = 0;
         StringBuilder stringBuilder = new StringBuilder();
         number = scanner.nextInt();
@@ -139,6 +142,8 @@ public class example {
         }
         System.out.println(stringBuilder);
 
+         */
+
 
 
 
@@ -146,4 +151,4 @@ public class example {
 
 
     }
-}
+

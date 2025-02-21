@@ -10,6 +10,7 @@ public class Arrays {
         city[3]="Izmir";
         city[5]="Kocaeli";
         System.out.println(city[3]);
+
         return city;
     }
     public static void arrayMethod2(){
