@@ -16,6 +16,7 @@ public class _example_week3_1 {
                 return scanner.nextInt();
             } else {
                 System.out.println("Geçersiz numara girdiniz!!");
+                System.out.println();
                 scanner.next();
             }
         }
