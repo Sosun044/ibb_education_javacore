@@ -128,7 +128,7 @@ public class StudentManagementSystem {
             System.out.println("\n9.Öğrenci En yüksek ve en düşük notları göster");
             System.out.println("\n10.Öğrenci sıralaması Doğum gününe göre göster");
             System.out.println("\n11.Çıkış ");
-            System.out.println("\nLütfen seçiminizi yapınız: ");
+            System.out.println("\nLütfen seçiminizi yapınız:  ");
 
             int chooise = scanner.nextInt();
             scanner.nextLine();
