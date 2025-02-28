@@ -45,6 +45,7 @@ public class StudentDto implements Serializable {
         this.midTerm = midTerm;
         this.finalTerm = finalTerm;
         this.birthDate = birthDate;
+        this.createdDate = new Date(System.currentTimeMillis());
         this.resultTerm = calculateTerm();
 
     }

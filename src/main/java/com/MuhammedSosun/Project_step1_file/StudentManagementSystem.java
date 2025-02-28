@@ -2,6 +2,7 @@ package com.MuhammedSosun.Project_step1_file;
 
 import com.MuhammedSosun.Utils.SpecialColor;
 
+import java.awt.*;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -46,7 +47,12 @@ public class StudentManagementSystem {
             studentDtoList =(ArrayList<StudentDto>) objectInputStream.readObject();
             studentCounter = studentDtoList.size();
 
-        }catch (IOException io){
+        }catch (FileNotFoundException fileNotFoundException){
+            System.out.println(SpecialColor.RED + "Dosyadan yüklenen öğrenci bulunamadı" + SpecialColor.RESET);
+            fileNotFoundException.printStackTrace();
+
+        }
+        catch (IOException io){
             System.out.println(SpecialColor.RED + " Dosya Ekleme Hatası"+ SpecialColor.RESET);
             io.printStackTrace();
 
@@ -58,7 +64,9 @@ public class StudentManagementSystem {
     /// /////////////////////////////////////////////////////////////
     // Öğrenci Ekle
     public void add(StudentDto dto){
-        studentDtoList.add(new StudentDto(++studentCounter,dto.getName(),dto.getSurname(),dto.getBirthDate(),dto.getGrade()));
+        studentDtoList.add(new StudentDto(++studentCounter,dto.getName(),dto.getSurname(),dto.getMidTerm()
+                ,dto.getFinalTerm(),dto.getBirthDate())
+        );
         System.out.println(SpecialColor.YELLOW + " Öğrenci Eklendi "+ SpecialColor.RESET);
         //File Ekle
         saveToFile();
@@ -71,13 +79,21 @@ public class StudentManagementSystem {
             System.out.println(SpecialColor.RED + " Öğrenci Yoktur"+SpecialColor.RESET);
         }
         else {
+            System.out.println(SpecialColor.BLUE+ "Öğrenci Listesi" + SpecialColor.RESET);
             studentDtoList.forEach(System.out::println);
         }
     }
     // Öğrenci Ara
     public void search(String name){
-        studentDtoList.stream().filter(temp ->temp.getName().equalsIgnoreCase(name))
-                .forEach(System.out::println);
+        /*studentDtoList.stream().filter(temp ->temp.getName().equalsIgnoreCase(name))
+                .forEach(System.out::println); */
+        boolean found = studentDtoList.stream().filter(temp -> temp.getName().equalsIgnoreCase(name))
+                .peek(System.out::println)
+                .findAny()//Data var mı yok mu
+                .isPresent();
+        if (!found){
+            throw new  StudentNotFoundException(name + " İsimli öğrenci Bulunamadı");
+        }
     }
     // Öğrenci Güncelle
     public void update(int id,StudentDto dto){
