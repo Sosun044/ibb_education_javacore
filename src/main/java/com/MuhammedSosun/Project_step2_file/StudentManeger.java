@@ -35,7 +35,7 @@ public class StudentManeger {
     }
 
     public void add(StudentDto dto) {
-        studentDtoList.add(new StudentDto(++studentCounter, dto.getName(), dto.getSurname(), dto.getMidTerm(), dto.getFinalTerm(), dto.getBirthDate()));
+        studentDtoList.add(new StudentDto(++studentCounter, dto.getName(), dto.getSurname(), dto.getMidTerm(), dto.getFinalTerm(), dto.getBirthDate(),dto.geteStudentType()));
         System.out.println(SpecialColor.YELLOW + "Öğrenci Eklendi" + SpecialColor.RESET);
 
         saveToFile();
@@ -70,6 +70,7 @@ public class StudentManeger {
                 temp.setBirthDate(dto.getBirthDate());
                 temp.setMidTerm(dto.getMidTerm());
                 temp.setFinalTerm(dto.getFinalTerm());
+                temp.seteStudentType(dto.geteStudentType());
                 //Güncellenmiş öğrenci bilgileri
                 System.out.println(SpecialColor.BLUE + temp + "Öğrenci Bilgileri Güncellendi" + SpecialColor.RESET);
                 //Dosayay kaydet
@@ -90,7 +91,18 @@ public class StudentManeger {
             System.out.println(SpecialColor.BLUE + " Öğrenci Silinmedi " + SpecialColor.RESET);
         }
     }
-
+    private EStudentType studentTypeMethod(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Öğrenci türünü seçiniz.\n1-Lisans\n2-Yüksek Lisans\n3-Doktora");
+        int typeChooice = scanner.nextInt();
+        EStudentType swichCaseStudent = switch (typeChooice){
+            case 1 -> EStudentType.UNDERGRADUATE;
+            case 2 -> EStudentType.GRADUATE;
+            case 3 -> EStudentType.PHD;
+            default -> EStudentType.OTHER;
+        };
+        return swichCaseStudent;
+    }
     public void chooise() {
         new Scanner(System.in);
         Scanner input = new Scanner(System.in);
@@ -118,13 +130,13 @@ public class StudentManeger {
                     String name = input.nextLine();
                     System.out.println("Öğrenci Soyadı");
                     String surname = input.nextLine();
-                    System.out.println("Öğrenci Doğum Tarihi");
+                    System.out.println("Öğrenci Doğum Tarihi YYYY-MM-DD");
                     LocalDate birthDate = LocalDate.parse(input.nextLine());
                     System.out.println("Vize Puanı");
                     double midTerm = input.nextDouble();
                     System.out.println("Final Puanı");
                     double finalTerm = input.nextDouble();
-                    studentManeger.add(new StudentDto(++studentCounter, name, surname, midTerm, finalTerm, birthDate));
+                    studentManeger.add(new StudentDto(++studentCounter, name, surname, midTerm, finalTerm, birthDate,studentTypeMethod()));
                     break;
                 case 2:
                     studentManeger.list();
@@ -156,6 +168,7 @@ public class StudentManeger {
                             .midTerm(midTermUpdate)
                             .finalTerm(finalTermUpdate)
                             .birthDate(birthDateUpdate).
+                            eStudentType(studentTypeMethod()).
                             build();
                     try {
                         studentManeger.update(id, studentDtoUpdate);

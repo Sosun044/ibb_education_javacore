@@ -23,11 +23,12 @@ public class StudentDto implements Serializable {
     private Double resultTerm;
     private LocalDate birthDate;
     private Date createDate;
+    private EStudentType eStudentType;
     static {}
     public StudentDto(){
     }
 
-    public StudentDto(Integer id, String name, String surname, Double midTerm, Double finalTerm,LocalDate birthDate) {
+    public StudentDto(Integer id, String name, String surname, Double midTerm, Double finalTerm,LocalDate birthDate,EStudentType eStudentType) {
         this.id = id;
         this.name = name;
         this.surname = surname;
@@ -36,6 +37,7 @@ public class StudentDto implements Serializable {
         this.resultTerm = calculateResult();
         this.birthDate = birthDate;
         this.createDate = new Date(System.currentTimeMillis());
+        this.eStudentType = eStudentType;
 
     }
 
@@ -104,5 +106,13 @@ public class StudentDto implements Serializable {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public EStudentType geteStudentType() {
+        return eStudentType;
+    }
+
+    public void seteStudentType(EStudentType eStudentType) {
+        this.eStudentType = eStudentType;
     }
 }
