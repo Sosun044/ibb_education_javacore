@@ -1,4 +1,4 @@
-package com.MuhammedSosun.Project_step1_file;
+package com.MuhammedSosun.Project_step2_file;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,54 +8,43 @@ import lombok.ToString;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
-
-@Builder
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode
 @ToString
 public class StudentDto implements Serializable {
-    //serileştirme
     private static final long serialVersionUID= 354354354534534L;
 
-    // Field
     private Integer id;
     private String name;
     private String surname;
-    private Double midTerm;   //vize notu
-    private Double finalTerm; //final notu
+    private Double midTerm;
+    private Double finalTerm;
     private Double resultTerm;
     private LocalDate birthDate;
-    private Date createdDate;
-
-    // static (Nesne boyunca 1 kere oluşturulur)
-    static {
-
-    }
-    //parametresiz constructor
-
-
-    public StudentDto() {
-
+    private Date createDate;
+    static {}
+    public StudentDto(){
     }
 
-    public StudentDto(Integer id, String name, String surname, Double midTerm, Double finalTerm, LocalDate birthDate) {
+    public StudentDto(Integer id, String name, String surname, Double midTerm, Double finalTerm,LocalDate birthDate) {
         this.id = id;
         this.name = name;
         this.surname = surname;
         this.midTerm = midTerm;
         this.finalTerm = finalTerm;
+        this.resultTerm = calculateResult();
         this.birthDate = birthDate;
-        this.createdDate = new Date(System.currentTimeMillis());
-        this.resultTerm = calculateTerm();
+        this.createDate = new Date(System.currentTimeMillis());
 
     }
 
-    private Double calculateTerm() {
+    private Double calculateResult() {
         if (midTerm == null || finalTerm == null){
             return 0.0;
         }
         else {
-            return ((midTerm*0.4) +(finalTerm*0.6));
+            return ((midTerm * 0.4) + (finalTerm * 0.6));
         }
     }
 
@@ -83,29 +72,13 @@ public class StudentDto implements Serializable {
         this.surname = surname;
     }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
     public Double getMidTerm() {
         return midTerm;
     }
 
     public void setMidTerm(Double midTerm) {
         this.midTerm = midTerm;
-        this.resultTerm = calculateTerm();
+        this.resultTerm = calculateResult();
     }
 
     public Double getFinalTerm() {
@@ -114,6 +87,22 @@ public class StudentDto implements Serializable {
 
     public void setFinalTerm(Double finalTerm) {
         this.finalTerm = finalTerm;
-        this.resultTerm = calculateTerm();
+        this.resultTerm = calculateResult();
     }
-}//end Student
+
+    public Double getResultTerm() {
+        return resultTerm;
+    }
+
+    public void setResultTerm(Double resultTerm) {
+        this.resultTerm = resultTerm;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+}
