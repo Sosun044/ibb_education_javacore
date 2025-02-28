@@ -21,9 +21,11 @@ public class StudentDto implements Serializable {
     private Integer id;
     private String name;
     private String surname;
+    private Double midTerm;   //vize notu
+    private Double finalTerm; //final notu
+    private Double resultTerm;
     private LocalDate birthDate;
     private Date createdDate;
-    private Double grade; // başarı puanı
 
     // static (Nesne boyunca 1 kere oluşturulur)
     static {
@@ -36,12 +38,24 @@ public class StudentDto implements Serializable {
 
     }
 
-    public StudentDto(Integer id, String name, String surname, LocalDate birthDate, Double grade) {
+    public StudentDto(Integer id, String name, String surname, Double midTerm, Double finalTerm, LocalDate birthDate) {
         this.id = id;
         this.name = name;
         this.surname = surname;
+        this.midTerm = midTerm;
+        this.finalTerm = finalTerm;
         this.birthDate = birthDate;
-        this.grade = grade;
+        this.resultTerm = calculateTerm();
+
+    }
+
+    private Double calculateTerm() {
+        if (midTerm == null || finalTerm == null){
+            return 0.0;
+        }
+        else {
+            return ((midTerm*0.4) +(finalTerm*0.6));
+        }
     }
 
     public Integer getId() {
@@ -84,11 +98,21 @@ public class StudentDto implements Serializable {
         this.createdDate = createdDate;
     }
 
-    public Double getGrade() {
-        return grade;
+    public Double getMidTerm() {
+        return midTerm;
     }
 
-    public void setGrade(Double grade) {
-        this.grade = grade;
+    public void setMidTerm(Double midTerm) {
+        this.midTerm = midTerm;
+        this.resultTerm = calculateTerm();
+    }
+
+    public Double getFinalTerm() {
+        return finalTerm;
+    }
+
+    public void setFinalTerm(Double finalTerm) {
+        this.finalTerm = finalTerm;
+        this.resultTerm = calculateTerm();
     }
 }//end Student
