@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Studentdao {
+public class Studentdao implements IDaoGenerics<StudentDto>{
     private ArrayList<StudentDto> studentDtoList = new ArrayList<>();
     private int studentCounter = 0;
     private static final String FILE_NAME = "student.txt";
@@ -34,24 +34,28 @@ public class Studentdao {
 
     private void loadStudentListFromFile() {
     }
-
-    public void add(StudentDto dto) {
-        studentDtoList.add(new StudentDto(++studentCounter, dto.getName(), dto.getSurname(), dto.getMidTerm(), dto.getFinalTerm(), dto.getBirthDate(),dto.geteStudentType()));
+    @Override
+    public StudentDto create(StudentDto studentDto) {
+        studentDtoList.add(new StudentDto(++studentCounter, studentDto.getName(), studentDto.getSurname(), studentDto.getMidTerm(),
+                studentDto.getFinalTerm(), studentDto.getBirthDate(),studentDto.geteStudentType()));
         System.out.println(SpecialColor.YELLOW + "Öğrenci Eklendi" + SpecialColor.RESET);
 
         saveToFile();
+        return studentDto;
     }
-
-    public void list() {
+    @Override
+    public ArrayList<StudentDto> list() {
         if (studentDtoList.isEmpty()) {
             System.out.println(SpecialColor.RED + " Öğrenci Yoktur" + SpecialColor.RESET);
+            throw new StudentNotFoundException("Öğrenci Yoktur");
         } else {
             System.out.println(SpecialColor.BLUE + "Öğrenci Listesi" + SpecialColor.RESET);
             studentDtoList.forEach(System.out::println);
         }
+        return studentDtoList;
     }
-
-    public void search(Integer id) {
+    @Override
+    public StudentDto findByName(Integer id) {
         /*studentDtoList.stream().filter(temp ->temp.getName().equalsIgnoreCase(name))
                 .forEach(System.out::println); */
         boolean found = studentDtoList.stream().filter(temp -> temp.getId().equals(id))
@@ -61,28 +65,30 @@ public class Studentdao {
         if (!found) {
             throw new StudentNotFoundException(id + " id li öğrenci Bulunamadı");
         }
+        return null;
     }
 
-    public void update(int id, StudentDto dto) {
+    @Override
+    public StudentDto update(int id, StudentDto studentDto) {
         for (StudentDto temp : studentDtoList) {
             if (temp.getId() == id) {
-                temp.setName(dto.getName());
-                temp.setSurname(dto.getSurname());
-                temp.setBirthDate(dto.getBirthDate());
-                temp.setMidTerm(dto.getMidTerm());
-                temp.setFinalTerm(dto.getFinalTerm());
-                temp.seteStudentType(dto.geteStudentType());
+                temp.setName(studentDto.getName());
+                temp.setSurname(studentDto.getSurname());
+                temp.setBirthDate(studentDto.getBirthDate());
+                temp.setMidTerm(studentDto.getMidTerm());
+                temp.setFinalTerm(studentDto.getFinalTerm());
+                temp.seteStudentType(studentDto.geteStudentType());
                 //Güncellenmiş öğrenci bilgileri
                 System.out.println(SpecialColor.BLUE + temp + "Öğrenci Bilgileri Güncellendi" + SpecialColor.RESET);
                 //Dosayay kaydet
                 saveToFile();
-                return;
             }
         }
         System.out.println(SpecialColor.RED + " Öğrenci Bulunamadı " + SpecialColor.RESET);
+        return studentDto;
     }
-
-    public void delete(int id) {
+    @Override
+    public StudentDto delete(int id) {
         boolean removed = studentDtoList.removeIf(temp -> temp.getId() == id);
         if (removed) {
             System.out.println(SpecialColor.BLUE + " Öğrenci Silindi " + SpecialColor.RESET);
@@ -91,7 +97,9 @@ public class Studentdao {
         } else {
             System.out.println(SpecialColor.BLUE + " Öğrenci Silinmedi " + SpecialColor.RESET);
         }
+        return null;
     }
+
     private EStudentType studentTypeMethod(){
         Scanner scanner = new Scanner(System.in);
         System.out.println("Öğrenci türünü seçiniz.\n1-Lisans\n2-Yüksek Lisans\n3-Doktora");
@@ -104,6 +112,7 @@ public class Studentdao {
         };
         return swichCaseStudent;
     }
+    @Override
     public void chooise() {
         new Scanner(System.in);
         Scanner input = new Scanner(System.in);
@@ -137,7 +146,7 @@ public class Studentdao {
                     double midTerm = input.nextDouble();
                     System.out.println("Final Puanı");
                     double finalTerm = input.nextDouble();
-                    studentManeger.add(new StudentDto(++studentCounter, name, surname, midTerm, finalTerm, birthDate,studentTypeMethod()));
+                    studentManeger.create(new StudentDto(++studentCounter, name, surname, midTerm, finalTerm, birthDate,studentTypeMethod()));
                     break;
                 case 2:
                     studentManeger.list();
@@ -146,7 +155,7 @@ public class Studentdao {
                     studentManeger.list();
                     System.out.println(SpecialColor.BLUE + "Arancak öğrenci id si gir " + SpecialColor.RESET);
                     Integer searchid = input.nextInt();
-                    studentManeger.search(searchid);
+                    studentManeger.findByName(searchid);
                     break;
                 case 4:
                     System.out.println("Güncellenecek Öğrenci id si giriniz: ");
