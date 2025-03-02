@@ -4,11 +4,10 @@ import com.MuhammedSosun.dto.StudentDto;
 import com.MuhammedSosun.exception.StudentNotFoundException;
 import com.MuhammedSosun.Utils.SpecialColor;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Studentdao implements IDaoGenerics<StudentDto>{
@@ -20,20 +19,95 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
     }
 
     public Studentdao() {
-        loadStudentListFromFile();
+        createIfNotExist();
+        loadStudentsListFromFile();
+    }
+    private void createIfNotExist(){
+        File file = new File(FILE_NAME);
+        if (!file.exists()){
+            try {
+                if (file.createNewFile()){
+                    System.out.println(SpecialColor.YELLOW + " Dosya Oluşturuldu "+SpecialColor.RESET);
+                }
+            }catch (IOException io){
+                System.out.println(SpecialColor.RED + " Dosya olusturulurken hata olustu"+SpecialColor.RESET);
+                io.printStackTrace();
+            }
+        }
     }
 
     private void saveToFile() {
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
-            objectOutputStream.writeObject(studentDtoList);
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FILE_NAME))) {
+            for (StudentDto student:studentDtoList){
+                bufferedWriter.write(studentToCsv(student) + "\n");
+            }
+            System.out.println(SpecialColor.YELLOW + "Öğrenci dosyaya kaydedildi" + SpecialColor.RESET);
         } catch (IOException io) {
             System.out.println(SpecialColor.RED + " Dosya Ekleme Hatası" + SpecialColor.RESET);
             io.printStackTrace();
         }
     }
 
-    private void loadStudentListFromFile() {
+    private void loadStudentsListFromFile() {
+        // Listedeki verileri temizle
+        studentDtoList.clear();
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                StudentDto student = csvToStudent(line);
+                if (student != null) {
+                    studentDtoList.add(student);
+                }
+            }
+            //studentCounter = studentDtoList.size();
+            // ✅ Öğrenciler içindeki en büyük ID'yi bul
+            /*
+            studentCounter = studentDtoList.stream()
+                    .mapToInt(StudentDto::getId)
+                    .max()
+                    .orElse(0); // Eğer öğrenci yoksa sıfır başlat
+            */
+            studentCounter = studentDtoList.size();
+            System.out.println(SpecialColor.BLUE + "Dosyadan yüklenen öğrenci sayısı"+studentCounter + SpecialColor.RESET);
+
+        } catch (IOException e) {
+            System.out.println(SpecialColor.RED + "Dosya okuma hatası!" + SpecialColor.RESET);
+            e.printStackTrace();
+        }
     }
+    private String studentToCsv(StudentDto student) {
+        return
+                student.getId() + "," +          // Öğrenci ID'sini ekler
+                        student.getName() + "," +        // Öğrenci adını ekler
+                        student.getSurname() + "," +     // Öğrenci soyadını ekler
+                        student.getMidTerm() + "," +     // Öğrenci vize notunu ekler
+                        student.getFinalTerm() + "," +   // Öğrenci final notunu ekler
+                        student.getResultTerm() + "," +  // Öğrenci sonuç notunu ekler
+                        student.getBirthDate() + "," +   // Öğrenci doğum tarihini ekler
+                        student.geteStudentType();       // Öğrencinin eğitim türünü (Lisans, Yüksek Lisans vb.) ekler
+    }
+    private StudentDto csvToStudent(String csvLine) {
+        try {
+            String[] parts = csvLine.split(",");  // Satırı virgülle bölerek bir dizi oluşturur
+            if (parts.length < 8) return null;    // **Eksik veri varsa işlemi durdurur ve null döndürür**
+
+            // PersonDto =>  Integer id, String name, String surname, LocalDate birthDate
+            // StudentDto =>  Integer id, String name, String surname, LocalDate birthDate, Double midTerm, Double finalTerm,EStudentType eStudentType
+            return new StudentDto(
+                    Integer.parseInt(parts[0]),  // ID değerini integer olarak dönüştürür
+                    parts[1],                    // Adı alır
+                    parts[2],                    // Soyadı alır// Doğum tarihini LocalDate formatına çevirir
+                    Double.parseDouble(parts[3]), // Vize notunu double olarak dönüştürür
+                    Double.parseDouble(parts[4]), // Final notunu double olarak dönüştürür
+                    LocalDate.parse(parts[6]),
+                    EStudentType.valueOf(parts[7]) // Öğrencinin eğitim türünü (Enum) çevirir
+            );
+        } catch (Exception e) {
+            System.out.println(SpecialColor.RED + "CSV'den öğrenci yükleme hatası!" + SpecialColor.RESET);
+            return null; // Hata durumunda null döndürerek programın çökmesini engeller
+        }
+    }
+
     @Override
     public StudentDto create(StudentDto studentDto) {
         studentDtoList.add(new StudentDto(++studentCounter, studentDto.getName(), studentDto.getSurname(), studentDto.getMidTerm(),
@@ -54,10 +128,17 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
         }
         return studentDtoList;
     }
-    @Override
-    public StudentDto findByName(Integer id) {
-        /*studentDtoList.stream().filter(temp ->temp.getName().equalsIgnoreCase(name))
-                .forEach(System.out::println); */
+    public StudentDto findByName(String name) {
+        Optional<StudentDto> student = studentDtoList.stream().filter(s -> s.getName().equalsIgnoreCase(name))
+                .findFirst();
+        return student.orElseThrow(() ->new StudentNotFoundException(name + "idli öğrenci bulunamadı"));
+
+    }
+        @Override
+    public StudentDto findByid(Integer id) {
+        /*
+        //studentDtoList.stream().filter(temp ->temp.getName().equalsIgnoreCase(name))
+                .forEach(System.out::println);
         boolean found = studentDtoList.stream().filter(temp -> temp.getId().equals(id))
                 .peek(System.out::println)
                 .findAny()//Data var mı yok mu
@@ -66,7 +147,14 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
             throw new StudentNotFoundException(id + " id li öğrenci Bulunamadı");
         }
         return null;
+         */
+        Optional<StudentDto> student =studentDtoList.stream()
+                .filter(s -> s.getId().equals(id)).findFirst();
+        return student.orElseThrow(() ->new StudentNotFoundException(id + "idli öğrenci bulunamadı"));
+
     }
+
+
 
     @Override
     public StudentDto update(int id, StudentDto studentDto) {
@@ -112,6 +200,132 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
         };
         return swichCaseStudent;
     }
+    public void chooiseSduentAdd(){
+        Scanner input = new Scanner(System.in);
+        System.out.println("Öğrenci Adı");
+        String name = input.nextLine();
+        System.out.println("Öğrenci Soyadı");
+        String surname = input.nextLine();
+        System.out.println("Öğrenci Doğum Tarihi YYYY-MM-DD");
+        LocalDate birthDate = LocalDate.parse(input.nextLine());
+        System.out.println("Vize Puanı");
+        double midTerm = input.nextDouble();
+        System.out.println("Final Puanı");
+        double finalTerm = input.nextDouble();
+        EStudentType eStudentType = studentTypeMethod();
+        StudentDto newStudent = new StudentDto(++studentCounter, name, surname, midTerm, finalTerm, birthDate,eStudentType);
+        create(newStudent);
+        System.out.println("Öğrenci Başarıyla Eklendi");
+    }
+    public void chooiseSduentList(){
+        try {
+            list();
+        }catch (StudentNotFoundException e){
+            System.out.println(e.getMessage());
+        }
+
+    }
+    public void chooiseStudentSearch(){
+        Scanner scanner = new Scanner(System.in);
+        list();
+        System.out.println("Aranacak öğrenci ismi: ");
+        String name = scanner.nextLine();
+        try {
+            System.out.println(findByName(name));
+        }catch (StudentNotFoundException e){
+            System.out.println(e.getMessage());
+        }
+
+    }
+    public void chooiseStudentUpdate(){
+        Scanner input = new  Scanner(System.in);
+        list();
+        System.out.println("Güncellenecek Öğrenci id si giriniz: ");
+        int id = input.nextInt();
+        input.nextLine();
+        System.out.println("Yeni Öğrenci Adı");
+        String nameUpdate = input.nextLine();
+        System.out.println("Yeni Öğrenci Soyadı");
+        String surnameUpdate = input.nextLine();
+        System.out.println("Öğrenci Doğum Tarihi YYYY-MM-DD");
+        LocalDate birthDateUpdate = LocalDate.parse(input.nextLine());
+        System.out.println("Vize Puanı");
+        double midTermUpdate = input.nextDouble();
+        System.out.println("Final Puanı");
+        double finalTermUpdate = input.nextDouble();
+
+        StudentDto studentDtoUpdate = StudentDto.builder().
+                name(nameUpdate)
+                .surname(surnameUpdate)
+                .midTerm(midTermUpdate)
+                .finalTerm(finalTermUpdate)
+                .birthDate(birthDateUpdate).
+                eStudentType(studentTypeMethod()).
+                build();
+        try {
+            update(id, studentDtoUpdate);
+        } catch (StudentNotFoundException e) {
+            System.out.println(SpecialColor.RED + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    public void chooiseStudentDelete(){
+        Scanner input = new Scanner(System.in);
+        list();
+        System.out.println("Silinecek Öğrenci Id si giriniz: ");
+        int deleteId = input.nextInt();
+        delete(deleteId);
+    }
+    public void chooiseStudentSum(){
+        System.out.println("Toplam Öğrenci Sayısı: "+ studentDtoList.size());
+    }
+    public void chooiseRandomStudent(){
+        if (!studentDtoList.isEmpty()){
+            StudentDto randomStudent = studentDtoList.get((int) (Math.random() * studentDtoList.size()));
+            System.out.println("Rastgele Seçilen öğrenci :" + randomStudent);
+        }else {
+            System.out.println("Sistemde Öğrenci yoktur");
+        }
+
+    }
+    public void chooiseStudentNoteAvarege(){
+        if (!studentDtoList.isEmpty()){
+            double avg=studentDtoList.stream()
+                    .mapToDouble(StudentDto::getResultTerm)
+                    .average()
+                    .orElse(0.0);
+            System.out.println("Öğrenci Not ortalaması: " + avg);
+        }else {
+            System.out.println("Öğrenci Listesi Boş");
+        }
+    }
+    public void chooiseStudentNoteMinAndMax(){
+        if (!studentDtoList.isEmpty()) {
+            StudentDto maxStudent = studentDtoList.stream()
+                    .max((s1, s2) -> Double.compare(s1.getResultTerm(), s2.getResultTerm()))
+                    .orElse(null);
+
+            StudentDto minStudent = studentDtoList.stream()
+                    .min((s1, s2) -> Double.compare(s1.getResultTerm(), s2.getResultTerm()))
+                    .orElse(null);
+
+            System.out.println("En Yüksek Not Alan Öğrenci: " + maxStudent);
+            System.out.println("En Düşük Not Alan Öğrenci: " + minStudent);
+        } else {
+            System.out.println("Öğrenci listesi boş.");
+        }
+    }
+    public void chooiseStudentBirthDaySortDate(){
+        studentDtoList.stream()
+                .sorted((s1, s2) -> s1.getBirthDate().compareTo(s2.getBirthDate()))
+                .forEach(System.out::println);
+    }
+    public void chooiseExit(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Sistemden Çıkılıyor... ");
+        scanner.close();
+        return;
+    }
     @Override
     public void chooise() {
         new Scanner(System.in);
@@ -136,79 +350,36 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
 
             switch (choose) {
                 case 1:
-                    System.out.println("Öğrenci Adı");
-                    String name = input.nextLine();
-                    System.out.println("Öğrenci Soyadı");
-                    String surname = input.nextLine();
-                    System.out.println("Öğrenci Doğum Tarihi YYYY-MM-DD");
-                    LocalDate birthDate = LocalDate.parse(input.nextLine());
-                    System.out.println("Vize Puanı");
-                    double midTerm = input.nextDouble();
-                    System.out.println("Final Puanı");
-                    double finalTerm = input.nextDouble();
-                    studentManeger.create(new StudentDto(++studentCounter, name, surname, midTerm, finalTerm, birthDate,studentTypeMethod()));
+                    chooiseSduentAdd();
                     break;
                 case 2:
-                    studentManeger.list();
+                    chooiseSduentList();
                     break;
                 case 3:
-                    studentManeger.list();
-                    System.out.println(SpecialColor.BLUE + "Arancak öğrenci id si gir " + SpecialColor.RESET);
-                    Integer searchid = input.nextInt();
-                    studentManeger.findByName(searchid);
+                    chooiseStudentSearch();
                     break;
                 case 4:
-                    System.out.println("Güncellenecek Öğrenci id si giriniz: ");
-                    int id = input.nextInt();
-                    input.nextLine();
-                    System.out.println("Yeni Öğrenci Adı");
-                    String nameUpdate = input.nextLine();
-                    System.out.println("Yeni Öğrenci Soyadı");
-                    String surnameUpdate = input.nextLine();
-                    System.out.println("Öğrenci Doğum Tarihi YYYY-MM-DD");
-                    LocalDate birthDateUpdate = LocalDate.parse(input.nextLine());
-                    System.out.println("Vize Puanı");
-                    double midTermUpdate = input.nextDouble();
-                    System.out.println("Final Puanı");
-                    double finalTermUpdate = input.nextDouble();
-
-                    StudentDto studentDtoUpdate = StudentDto.builder().
-                            name(nameUpdate)
-                            .surname(surnameUpdate)
-                            .midTerm(midTermUpdate)
-                            .finalTerm(finalTermUpdate)
-                            .birthDate(birthDateUpdate).
-                            eStudentType(studentTypeMethod()).
-                            build();
-                    try {
-                        studentManeger.update(id, studentDtoUpdate);
-                    } catch (StudentNotFoundException e) {
-                        System.out.println(SpecialColor.RED + e.getMessage());
-                        e.printStackTrace();
-                    }
+                    chooiseStudentUpdate();
                     break;
                 case 5:
-                    studentManeger.list();
-                    System.out.println("Silinecek Öğrenci Id si giriniz: ");
-                    int deleteId = input.nextInt();
-                    studentManeger.delete(deleteId);
+                    chooiseStudentDelete();
                     break;
                 case 6:
-                    System.out.println("Case 6");
+                    chooiseStudentSum();
                     break;
                 case 7:
-                    System.out.println("Case 7");
+                    chooiseRandomStudent();
                     break;
                 case 8:
-                    System.out.println("Case 8");
+                    chooiseStudentNoteAvarege();
                     break;
                 case 9:
-                    System.out.println("Case 9");
+                    chooiseStudentNoteMinAndMax();
                     break;
                 case 10:
-                    System.out.println("Sistemden çıkış yapınız: ");
-                    System.exit(0);
-                    //return: bunu yazarsak break gerek yoktur
+                    chooiseStudentBirthDaySortDate();
+                case 11:
+                    chooiseExit();
                     break;
                 default:
                     System.out.println("Geçersiz seçim yaptınız lütfen tekrar deneyiniz");

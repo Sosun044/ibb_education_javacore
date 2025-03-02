@@ -20,8 +20,11 @@ public class StudentController implements IDaoGenerics<StudentDto> {
     }
 
     @Override
-    public StudentDto findByName(Integer id) {
-        return studentdao.findByName(id);
+    public StudentDto findByid(Integer id) {
+        return studentdao.findByid(id);
+    }
+    public StudentDto findByName(String name){
+        return studentdao.findByName(name);
     }
 
     @Override
