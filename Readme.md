@@ -1,1 +1,2 @@
-Burada kendimi güncel tutuyorum ve geliştiriyorum projede yapıyorum 
+Burada kendimi güncel tutuyorum ve geliştiriyorum projede dahil
+
