@@ -24,6 +24,7 @@ public class StudentDto implements Serializable {
     private Double finalTerm;
     private Double resultTerm;
     private LocalDate birthDate;
+    private String status;
     private Date createDate;
     private EStudentType eStudentType;
     static {}
@@ -37,6 +38,7 @@ public class StudentDto implements Serializable {
         this.midTerm = midTerm;
         this.finalTerm = finalTerm;
         this.resultTerm = calculateResult();
+        this.status = determineStatus();
         this.birthDate = birthDate;
         this.createDate = new Date(System.currentTimeMillis());
         this.eStudentType = eStudentType;
@@ -50,6 +52,9 @@ public class StudentDto implements Serializable {
         else {
             return ((midTerm * 0.4) + (finalTerm * 0.6));
         }
+    }
+    public String determineStatus(){
+        return (this.resultTerm >= 55) ? "Geçti" : "Kaldı";
     }
 
     public Integer getId() {
@@ -98,9 +103,18 @@ public class StudentDto implements Serializable {
         return resultTerm;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public void setResultTerm(Double resultTerm) {
         this.resultTerm = resultTerm;
     }
+
 
     public LocalDate getBirthDate() {
         return birthDate;

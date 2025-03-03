@@ -15,6 +15,9 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
     private int studentCounter = 0;
     private static final String FILE_NAME = "student.txt";
 
+    Scanner scanner = new Scanner(System.in);
+
+
     static {
     }
 
@@ -37,7 +40,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
     }
 
     private void saveToFile() {
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FILE_NAME))) {
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FILE_NAME,true))) {
             for (StudentDto student:studentDtoList){
                 bufferedWriter.write(studentToCsv(student) + "\n");
             }
@@ -77,10 +80,11 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
     }
     private String studentToCsv(StudentDto student) {
         return
-                student.getId() + "," +          // Öğrenci ID'sini ekler
+                        student.getId() + "," +          // Öğrenci ID'sini ekler
                         student.getName() + "," +        // Öğrenci adını ekler
                         student.getSurname() + "," +     // Öğrenci soyadını ekler
                         student.getMidTerm() + "," +     // Öğrenci vize notunu ekler
+                                 student.getStatus() + ","+
                         student.getFinalTerm() + "," +   // Öğrenci final notunu ekler
                         student.getResultTerm() + "," +  // Öğrenci sonuç notunu ekler
                         student.getBirthDate() + "," +   // Öğrenci doğum tarihini ekler
@@ -100,7 +104,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
                     Double.parseDouble(parts[3]), // Vize notunu double olarak dönüştürür
                     Double.parseDouble(parts[4]), // Final notunu double olarak dönüştürür
                     LocalDate.parse(parts[6]),
-                    EStudentType.valueOf(parts[7]) // Öğrencinin eğitim türünü (Enum) çevirir
+                    EStudentType.valueOf(parts[8]) // Öğrencinin eğitim türünü (Enum) çevirir
             );
         } catch (Exception e) {
             System.out.println(SpecialColor.RED + "CSV'den öğrenci yükleme hatası!" + SpecialColor.RESET);
@@ -110,12 +114,49 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
 
     @Override
     public StudentDto create(StudentDto studentDto) {
-        studentDtoList.add(new StudentDto(++studentCounter, studentDto.getName(), studentDto.getSurname(), studentDto.getMidTerm(),
-                studentDto.getFinalTerm(), studentDto.getBirthDate(),studentDto.geteStudentType()));
-        System.out.println(SpecialColor.YELLOW + "Öğrenci Eklendi" + SpecialColor.RESET);
+        try {
+            // 📌 Verilerin doğrulanmasını sağlıyoruz
+            validateStudent(studentDto);
 
-        saveToFile();
-        return studentDto;
+
+
+            // Yeni Öğrenciyi ID'si En büyük olan ID'nin 1 fazlası
+            studentDto.setId(++studentCounter);
+
+            // ID'yi artırıp nesneye atıyoruz
+            // 📌 **ID artık public static olduğu için her sınıftan erişilebilir!**
+            studentDtoList.add(studentDto);
+            saveToFile();
+
+            System.out.println(studentDto+ SpecialColor.GREEN + "✅ Öğrenci başarıyla eklendi!" + SpecialColor.RESET);
+            return studentDto;
+
+        } catch (IllegalArgumentException e) {
+            System.out.println(SpecialColor.RED + "⛔ Hata: " + e.getMessage() + SpecialColor.RESET);
+            return null; // Hata durumunda nesne oluşturulmaz
+        }
+    }
+    public void validateStudent(StudentDto studentDto){
+        if (studentDto.getName() == null || !studentDto.getName().matches("^[a-zA-ZığüşöçİĞÜŞÖÇ]+$")){
+            throw  new IllegalArgumentException("Ad yalnızca harf içermeli");
+        }
+        if (studentDto.getSurname()== null || !studentDto.getSurname().matches("^[a-zA-ZığüşöçİĞÜŞÖÇ]+$")){
+            throw  new IllegalArgumentException("Ad yalnızca harf içermeli");
+        }
+        if (studentDto.getMidTerm() == null ||studentDto.getMidTerm()<0||studentDto.getMidTerm()>100){
+            throw new IllegalArgumentException("Vize notu 0 ile 100 arasında olmalıdır.");
+
+        }
+        if (studentDto.getFinalTerm() == null ||studentDto.getFinalTerm()<0||studentDto.getFinalTerm()>100){
+            throw new IllegalArgumentException("Final notu 0 ile 100 arasında olmalıdır.");
+        }
+        if (studentDto.getBirthDate() == null || studentDto.getBirthDate().isAfter(LocalDate.now())){
+            throw new IllegalArgumentException("Doğum tarihi bugünden büyük olamaz.");
+        }
+        if (studentDto.geteStudentType() == null){
+            throw new IllegalArgumentException("Öğrenci türü boş olamaz.");
+        }
+
     }
     @Override
     public ArrayList<StudentDto> list() {
@@ -189,7 +230,6 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
     }
 
     private EStudentType studentTypeMethod(){
-        Scanner scanner = new Scanner(System.in);
         System.out.println("Öğrenci türünü seçiniz.\n1-Lisans\n2-Yüksek Lisans\n3-Doktora");
         int typeChooice = scanner.nextInt();
         EStudentType swichCaseStudent = switch (typeChooice){
@@ -201,22 +241,22 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
         return swichCaseStudent;
     }
     public void chooiseSduentAdd(){
-        Scanner input = new Scanner(System.in);
         System.out.println("Öğrenci Adı");
-        String name = input.nextLine();
+        String name = scanner.nextLine();
         System.out.println("Öğrenci Soyadı");
-        String surname = input.nextLine();
+        String surname = scanner.nextLine();
         System.out.println("Öğrenci Doğum Tarihi YYYY-MM-DD");
-        LocalDate birthDate = LocalDate.parse(input.nextLine());
+        LocalDate birthDate = LocalDate.parse(scanner.nextLine());
         System.out.println("Vize Puanı");
-        double midTerm = input.nextDouble();
+        double midTerm = scanner.nextDouble();
         System.out.println("Final Puanı");
-        double finalTerm = input.nextDouble();
+        double finalTerm = scanner.nextDouble();
         EStudentType eStudentType = studentTypeMethod();
         StudentDto newStudent = new StudentDto(++studentCounter, name, surname, midTerm, finalTerm, birthDate,eStudentType);
         create(newStudent);
         System.out.println("Öğrenci Başarıyla Eklendi");
     }
+
     public void chooiseSduentList(){
         try {
             list();
@@ -226,7 +266,6 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
 
     }
     public void chooiseStudentSearch(){
-        Scanner scanner = new Scanner(System.in);
         list();
         System.out.println("Aranacak öğrenci ismi: ");
         String name = scanner.nextLine();
@@ -238,21 +277,20 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
 
     }
     public void chooiseStudentUpdate(){
-        Scanner input = new  Scanner(System.in);
         list();
         System.out.println("Güncellenecek Öğrenci id si giriniz: ");
-        int id = input.nextInt();
-        input.nextLine();
+        int id = scanner.nextInt();
+        scanner.nextLine();
         System.out.println("Yeni Öğrenci Adı");
-        String nameUpdate = input.nextLine();
+        String nameUpdate = scanner.nextLine();
         System.out.println("Yeni Öğrenci Soyadı");
-        String surnameUpdate = input.nextLine();
+        String surnameUpdate = scanner.nextLine();
         System.out.println("Öğrenci Doğum Tarihi YYYY-MM-DD");
-        LocalDate birthDateUpdate = LocalDate.parse(input.nextLine());
+        LocalDate birthDateUpdate = LocalDate.parse(scanner.nextLine());
         System.out.println("Vize Puanı");
-        double midTermUpdate = input.nextDouble();
+        double midTermUpdate = scanner.nextDouble();
         System.out.println("Final Puanı");
-        double finalTermUpdate = input.nextDouble();
+        double finalTermUpdate = scanner.nextDouble();
 
         StudentDto studentDtoUpdate = StudentDto.builder().
                 name(nameUpdate)
@@ -270,10 +308,9 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
         }
     }
     public void chooiseStudentDelete(){
-        Scanner input = new Scanner(System.in);
         list();
         System.out.println("Silinecek Öğrenci Id si giriniz: ");
-        int deleteId = input.nextInt();
+        int deleteId = scanner.nextInt();
         delete(deleteId);
     }
     public void chooiseStudentSum(){
@@ -295,6 +332,12 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
                     .average()
                     .orElse(0.0);
             System.out.println("Öğrenci Not ortalaması: " + avg);
+            if (avg >= 55){
+                System.out.println("Öğrenci geçti");
+            }
+            else {
+                System.out.println("Öğrenci Geçmedi");
+            }
         }else {
             System.out.println("Öğrenci Listesi Boş");
         }
@@ -321,15 +364,12 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
                 .forEach(System.out::println);
     }
     public void chooiseExit(){
-        Scanner scanner = new Scanner(System.in);
         System.out.println("Sistemden Çıkılıyor... ");
         scanner.close();
         return;
     }
     @Override
     public void chooise() {
-        new Scanner(System.in);
-        Scanner input = new Scanner(System.in);
         Studentdao studentManeger = new Studentdao();
 
         while (true) {
@@ -345,8 +385,8 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
             System.out.println("10.Öğrenci sıralaması Doğum gününe göre göster");
             System.out.println("11.Çıkış ");
             System.out.println("Lütfen seçiminizi yapınız:  ");
-            int choose = input.nextInt();
-            input.nextLine(); // Buffer'ı temizle
+            int choose = scanner.nextInt();
+            scanner.nextLine(); // Buffer'ı temizle
 
             switch (choose) {
                 case 1:
