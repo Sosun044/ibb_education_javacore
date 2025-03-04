@@ -1,5 +1,6 @@
 package com.MuhammedSosun.dto;
 
+import com.MuhammedSosun.Utils.SpecialColor;
 import com.MuhammedSosun.dao.EStudentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,39 +9,53 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
 
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode
 @ToString
-public class StudentDto implements Serializable {
+public class StudentDto extends PersonDto implements Serializable {
     private static final long serialVersionUID= 354354354534534L;
 
-    private Integer id;
-    private String name;
-    private String surname;
+
     private Double midTerm;
     private Double finalTerm;
-    private Double resultTerm;
-    private LocalDate birthDate;
+    private Double resultTerm = 0.0;
     private String status;
-    private Date createDate;
     private EStudentType eStudentType;
-    static {}
+
+    static {
+        System.out.println(SpecialColor.BLUE + "Static StudentDto Yüklendi" + SpecialColor.RESET);
+    }
     public StudentDto(){
+        super();
+        this.midTerm= 0.0;
+        this.finalTerm= 0.0;
+        this.resultTerm = 0.0;
     }
 
-    public StudentDto(Integer id, String name, String surname, Double midTerm, Double finalTerm, LocalDate birthDate, EStudentType eStudentType) {
-        this.id = id;
-        this.name = name;
-        this.surname = surname;
+    @Override
+    public String toString() {
+        return "StudentDto{" +
+                "midTerm=" + midTerm +
+                ", finalTerm=" + finalTerm +
+                ", resultTerm=" + resultTerm +
+                ", status='" + status + '\'' +
+                ", eStudentType=" + eStudentType +
+                "} " + super.toString();
+    }
+
+    @Override
+    void displayInfo() {
+
+    }
+
+    public StudentDto(Integer id,String name,String surname,LocalDate birthDate, Double midTerm, Double finalTerm, EStudentType eStudentType) {
+       super(id,name,surname,birthDate);
         this.midTerm = midTerm;
         this.finalTerm = finalTerm;
         this.resultTerm = calculateResult();
         this.status = determineStatus();
-        this.birthDate = birthDate;
-        this.createDate = new Date(System.currentTimeMillis());
         this.eStudentType = eStudentType;
 
     }
@@ -54,32 +69,11 @@ public class StudentDto implements Serializable {
         }
     }
     public String determineStatus(){
+        if (this.resultTerm == null ) return "Bilinmiyor";
         return (this.resultTerm >= 55) ? "Geçti" : "Kaldı";
     }
 
-    public Integer getId() {
-        return id;
-    }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
 
     public Double getMidTerm() {
         return midTerm;
@@ -100,9 +94,14 @@ public class StudentDto implements Serializable {
     }
 
     public Double getResultTerm() {
-        return resultTerm;
+        return resultTerm !=null ? resultTerm : 0.0;
     }
-
+    public void setResultTerm(Double resultTerm) {
+        if (resultTerm == null){
+            this.resultTerm = 0.0;
+        }
+        this.resultTerm = resultTerm;
+    }
     public String getStatus() {
         return status;
     }
@@ -111,18 +110,6 @@ public class StudentDto implements Serializable {
         this.status = status;
     }
 
-    public void setResultTerm(Double resultTerm) {
-        this.resultTerm = resultTerm;
-    }
-
-
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
 
     public EStudentType geteStudentType() {
         return eStudentType;
