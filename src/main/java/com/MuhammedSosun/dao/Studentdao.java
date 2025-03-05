@@ -216,6 +216,8 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
 
     @Override
     public StudentDto update(int id, StudentDto studentDto) {
+        try {
+
         for (StudentDto temp : studentDtoList) {
             if (temp.getId() == id) {
                 temp.setName(studentDto.getName());
@@ -230,6 +232,9 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
                 //Dosayay kaydet
                 saveToFile();
             }
+        }
+        }catch (Exception e){
+            e.printStackTrace();
         }
         System.out.println(SpecialColor.RED + " Öğrenci Bulunamadı " + SpecialColor.RESET);
         return studentDto;
