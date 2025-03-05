@@ -100,8 +100,8 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
             StudentDto student = new StudentDto(
                     Integer.parseInt(parts[0]),  // ID değerini integer olarak dönüştürür
                     parts[1],                    // Adı alır
-                    parts[2],// Soyadı alır// Doğum tarihini LocalDate formatına çevirir
-                    LocalDate.parse(parts[3]),
+                    parts[2],// Soyadı alır
+                    LocalDate.parse(parts[3]),// Doğum tarihini LocalDate formatına çevirir
                     Double.parseDouble(parts[4]), // Vize notunu double olarak dönüştürür
                     Double.parseDouble(parts[5]), // Final notunu double olarak dönüştürür
                     EStudentType.valueOf(parts[8]) // Öğrencinin eğitim türünü (Enum) çevirir
@@ -119,7 +119,6 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
 
     @Override
     public StudentDto create(StudentDto studentDto) {
-
         try {
             // 📌 Verilerin doğrulanmasını sağlıyoruz
             validateStudent(studentDto);
@@ -152,7 +151,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
             throw  new IllegalArgumentException("Ad yalnızca harf içermeli");
         }
         if (studentDto.getSurname()== null || !studentDto.getSurname().matches("^[a-zA-ZığüşöçİĞÜŞÖÇ]+$")){
-            throw  new IllegalArgumentException("Ad yalnızca harf içermeli");
+            throw  new IllegalArgumentException("SoyAd yalnızca harf içermeli");
         }
         if (studentDto.getMidTerm() == null ||studentDto.getMidTerm()<0||studentDto.getMidTerm()>100){
             throw new IllegalArgumentException("Vize notu 0 ile 100 arasında olmalıdır.");
