@@ -1,26 +1,23 @@
 package com.MuhammedSosun.dao;
 
 import com.MuhammedSosun.Utils.SpecialColor;
-import com.MuhammedSosun.dto.PersonDto;
 import com.MuhammedSosun.dto.TeacherDto;
 import com.MuhammedSosun.exception.TeacherNotFoundException;
-import com.MuhammedSosun.tutorials._2_week.DateTime;
 
 import java.io.*;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
-import java.util.function.Predicate;
 
 public class TeacherDao implements IDaoGenerics<TeacherDto> {
-    private final List<TeacherDto> teacherDtoList = new ArrayList<>();
+    private final List<TeacherDto> teacherDtoList;
     private final Scanner scanner = new Scanner(System.in);
     private static final Random random = new Random();
     private static final String FILE_NAME = "teacher.txt";
 
     public TeacherDao() {
+        teacherDtoList = new ArrayList<>();
         createIfNotExist();
         loadStudentsListFromFile();
     }
@@ -68,7 +65,7 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
 
     private String teacherTocsv(TeacherDto teacher) {
         return teacher.id() + " " + teacher.name() + " " + teacher.surname() + " " + teacher.birthDate() + " " +
-                teacher.subject() + "," +
+                teacher.eTeacherSubject() + "," +
                 teacher.yearsOfExperience() + "," +
                 teacher.isTenured() + "," +
                 teacher.salary();
@@ -98,7 +95,7 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
                     parts[1],
                     parts[2],
                     birthDate,
-                    parts[4],
+                    ETeacherSubject.valueOf(parts[4]),
                     Integer.parseInt(parts[5]),
                     Boolean.parseBoolean(parts[6]),
                     Double.parseDouble(parts[7])
@@ -159,6 +156,20 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
         saveToFile();
         return teacher.orElseThrow(() -> new TeacherNotFoundException(id + "ID 'li Öğretmen bulunamadı"));
     }
+    public ETeacherSubject teacherTypeMethod(){
+        System.out.println("Öğretmen türünü seçiniz.\n1-HISOTRY\n2-BIOLOGY\n3-CHEMISTRY\n4-COMPUTER_SCIENCE\n5-MATHEMATICS");
+        int thypeChooise =scanner.nextInt();
+        ETeacherSubject swichCaseTeacher = switch (thypeChooise){
+            case 1-> ETeacherSubject.HISTORY;
+            case 2-> ETeacherSubject.BIOLOGY;
+            case 3-> ETeacherSubject.CHEMISTRY;
+            case 4-> ETeacherSubject.COMPUTER_SCIENCE;
+            case 5-> ETeacherSubject.MATHEMATICS;
+            default -> ETeacherSubject.OTHER;
+
+        };
+        return swichCaseTeacher;
+    }
 
     @Override
     public void chooise() {
@@ -209,7 +220,8 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
         System.out.println("Öğretmen Doğum Tarihi: ");
         LocalDate birthDate = LocalDate.parse(scanner.nextLine(),DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         System.out.println("Uzmanlık alanı");
-        String subject = scanner.nextLine();
+        ETeacherSubject eTeacherSubject = teacherTypeMethod();
+      //  String subject = scanner.nextLine();
         System.out.print("Deneyim Yılı: ");
         int yearsOfExperience = scanner.nextInt();
 
@@ -219,7 +231,7 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
         System.out.print("Maaş: ");
         double salary = scanner.nextDouble();
 
-        TeacherDto teacher = new TeacherDto(id,name,surname,birthDate,subject,yearsOfExperience,isTenured,salary);
+        TeacherDto teacher = new TeacherDto(id,name,surname,birthDate,eTeacherSubject,yearsOfExperience,isTenured,salary);
         teacherDtoList.add(teacher);
         System.out.println("Öğretmen başarıyla eklendi.");
     }
@@ -229,14 +241,14 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
             return;
         }
         System.out.println("\n=== Öğretmen Listesi ===");
-        teacherDtoList.forEach(t -> System.out.println(t.fullName() + "-" + t.subject()));
+        teacherDtoList.forEach(t -> System.out.println(t.fullName() + "-" + t.eTeacherSubject()));
     }
     private void searchTeacher(){
         System.out.print("Aranacak öğretmenin adı: ");
         String name = scanner.nextLine();
         try {
             TeacherDto teacher = findByName(name);
-            System.out.println("Bulunan Öğretmen: " + teacher.fullName() + " - " + teacher.subject());
+            System.out.println("Bulunan Öğretmen: " + teacher.fullName() + " - " + teacher.eTeacherSubject());
         }catch (TeacherNotFoundException e){
             System.out.println(e.getMessage());
         }
@@ -261,7 +273,7 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
                     name.isBlank() ? existingTeacher.name() : name,
                     surname.isBlank() ? existingTeacher.surname() : surname,
                     existingTeacher.birthDate(),
-                    existingTeacher.subject(),
+                    existingTeacher.eTeacherSubject(),
                     existingTeacher.yearsOfExperience(),
                     existingTeacher.isTenured(),
                     salary > 0 ? salary : existingTeacher.salary()

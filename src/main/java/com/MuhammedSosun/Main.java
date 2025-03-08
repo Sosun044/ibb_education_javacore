@@ -1,6 +1,7 @@
 package com.MuhammedSosun;
 
 import com.MuhammedSosun.controller.StudentController;
+import com.MuhammedSosun.controller.TeacherController;
 import com.MuhammedSosun.dao.TeacherDao;
 
 import java.util.Scanner;
@@ -19,8 +20,8 @@ public class Main {
 
                 int choice = scanner.nextInt();
                 switch (choice) {
-                    case 1 -> student();
-                    case 2 -> teacher();
+                    case 1 -> teacher();
+                    case 2 -> student();
                     case 3 -> {
                         System.out.println("Sistemden Çıkış Yapılıyor");
                         return;
@@ -43,8 +44,8 @@ public class Main {
     }
     private static void teacher(){
         try {
-            TeacherDao teacherDao = new TeacherDao();
-            teacherDao.chooise();
+            TeacherController teacherController = new TeacherController();
+            teacherController.chooise();
         }catch (Exception e) {
             e.printStackTrace();
         }
