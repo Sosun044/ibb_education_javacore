@@ -6,30 +6,25 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
 
-// Java Record Kullanımı
 public record Week5_01_Record(
         Integer id,
         String name,
         String surname,
-        EStudentType eStudentType, // Enum Öğrenci Türü
-        Double midTerm,      // Vize notu
-        Double finalTerm,    // Final notu
-        Double resultTerm,   // Sonuç Notu: (Vize%40 + Final%60)
-        LocalDate birthDate, // Doğum günü
-        Date createdDate     // Sistem otomatik tarihi
-) implements Serializable {
+        EStudentType eStudentType,
+        Double mid,
+        Double finalTerm,
+        Double resultTerm,
+        LocalDate birthDate,
+        Date createdDate
+)implements Serializable {
+    public  static final long serialVersionUID = 2345235235235235L;
 
-    // Serileştirme
-    private static final long serialVersionUID = 5563646556456565465L;
-
-    // Constructor (Vize ve Final notuna göre otomatik result hesaplama)
-    public Week5_01_Record(Integer id, String name, String surname, Double midTerm, Double finalTerm, LocalDate birthDate, EStudentType eStudentType) {
-        this(id, name, surname, eStudentType, midTerm, finalTerm, calculateResult(midTerm, finalTerm), birthDate, new Date(System.currentTimeMillis()));
+    public Week5_01_Record(Integer id,String name,String surname,EStudentType eStudentType,Double mid,Double finalTerm,LocalDate birthDate){
+        this(id,name,surname,eStudentType,mid,finalTerm,calculateResult(mid,finalTerm),birthDate,new Date(System.currentTimeMillis()));
     }
 
-    // Not hesaplama metodu
-    private static Double calculateResult(Double midTerm, Double finalTerm) {
-        if (midTerm == null || finalTerm == null) return 0.0;
-        return (midTerm * 0.4 + finalTerm * 0.6);
+    private static Double calculateResult(Double mid, Double finalTerm) {
+        if (mid == null || finalTerm == null) return 0.0;
+        return (mid * 0.4 + finalTerm * 0.6);
     }
 }
