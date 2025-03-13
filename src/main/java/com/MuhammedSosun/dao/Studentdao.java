@@ -118,6 +118,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
     }
 
     @Override
+    @Deprecated //Eski metot yenisini kullanın
     public StudentDto create(StudentDto studentDto) {
         try {
             // 📌 Verilerin doğrulanmasını sağlıyoruz
@@ -169,6 +170,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
 
     }
     @Override
+    @SuppressWarnings("unchacked") // derleyici uyarılarını bastırmak için kullanırız
     public ArrayList<StudentDto> list() {
         if (studentDtoList.isEmpty()) {
             System.out.println(SpecialColor.RED + " Öğrenci Yoktur" + SpecialColor.RESET);
@@ -186,14 +188,21 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
         }
         return studentDtoList;
     }
-    public StudentDto findByName(String name) {
+    public Optional<StudentDto> findByName(String name) {
+        /*
+        1.YOl
         Optional<StudentDto> student = studentDtoList.stream().filter(s -> s.getName().equalsIgnoreCase(name))
                 .findFirst();
         return student.orElseThrow(() ->new StudentNotFoundException(name + "idli öğrenci bulunamadı"));
+         */
+        return studentDtoList
+                .stream()
+                .filter(s ->s.getName().equalsIgnoreCase(name))
+                .findFirst();
 
     }
         @Override
-    public StudentDto findByid(Integer id) {
+    public Optional<StudentDto> findByid(Integer id) {
         /*
         //studentDtoList.stream().filter(temp ->temp.getName().equalsIgnoreCase(name))
                 .forEach(System.out::println);
@@ -206,20 +215,21 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
         }
         return null;
          */
+            /*
         Optional<StudentDto> student =studentDtoList.stream()
                 .filter(s -> s.getId().equals(id)).findFirst();
         return student.orElseThrow(() ->new StudentNotFoundException(id + "idli öğrenci bulunamadı"));
-
+             */
+            return studentDtoList
+                    .stream()
+                    .filter(s -> s.getId().equals(id))
+                    .findFirst();
     }
-
-
-
     @Override
-    public StudentDto update(int id, StudentDto studentDto) {
+    public Optional<StudentDto> update(int id, StudentDto studentDto) {
         try {
-
         for (StudentDto temp : studentDtoList) {
-            if (temp.getId() == id) {
+            if (temp.getId().equals(id)) {
                 temp.setName(studentDto.getName());
                 temp.setSurname(studentDto.getSurname());
                 temp.setBirthDate(studentDto.getBirthDate());
@@ -231,25 +241,40 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
                 System.out.println(SpecialColor.BLUE + temp + "Öğrenci Bilgileri Güncellendi" + SpecialColor.RESET);
                 //Dosayay kaydet
                 saveToFile();
+                return Optional.of(temp);
             }
         }
         }catch (Exception e){
             e.printStackTrace();
+            throw new StudentNotFoundException("Öğrenci Bulunamadı");
         }
-        System.out.println(SpecialColor.RED + " Öğrenci Bulunamadı " + SpecialColor.RESET);
-        return studentDto;
+        return Optional.empty();
     }
     @Override
-    public StudentDto delete(int id) {
+    public Optional<StudentDto> delete(int id) {
+        /*
         boolean removed = studentDtoList.removeIf(temp -> temp.getId() == id);
         if (removed) {
             System.out.println(SpecialColor.BLUE + " Öğrenci Silindi " + SpecialColor.RESET);
             // File Ekle
             saveToFile();
+            return Optional.empty();
         } else {
             System.out.println(SpecialColor.BLUE + " Öğrenci Silinmedi " + SpecialColor.RESET);
+            throw new StudentNotFoundException("Öğrenci Silinmedi, ID bulunamadı!!");
         }
-        return null;
+         */
+        Optional<StudentDto> studentToDelete = findByid(id);
+        if (studentToDelete.isPresent()){
+            studentDtoList.remove(studentToDelete.get());
+            System.out.println(SpecialColor.BLUE + " Öğrenci Silindi " + SpecialColor.RESET);
+            saveToFile();
+            return studentToDelete;
+        }
+        else {
+            System.out.println(SpecialColor.BLUE + " Öğrenci Silinmedi " + SpecialColor.RESET);
+            throw new StudentNotFoundException("Öğrenci Silinmedi, ID bulunamadı!!");
+        }
     }
 
     private EStudentType studentTypeMethod(){

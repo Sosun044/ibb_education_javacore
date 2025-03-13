@@ -5,6 +5,7 @@ import com.MuhammedSosun.dao.Studentdao;
 import com.MuhammedSosun.dto.StudentDto;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class StudentController implements IDaoGenerics<StudentDto> {
 
@@ -20,10 +21,10 @@ public class StudentController implements IDaoGenerics<StudentDto> {
     }
 
     @Override
-    public StudentDto findByid(Integer id) {
+    public Optional<StudentDto> findByid(Integer id) {
         return studentdao.findByid(id);
     }
-    public StudentDto findByName(String name){
+    public Optional<StudentDto> findByName(String name){
         return studentdao.findByName(name);
     }
 
@@ -33,12 +34,12 @@ public class StudentController implements IDaoGenerics<StudentDto> {
     }
 
     @Override
-    public StudentDto update(int id, StudentDto studentDto) {
+    public Optional<StudentDto> update(int id, StudentDto studentDto) {
         return studentdao.update(id,studentDto);
     }
 
     @Override
-    public StudentDto delete(int id) {
+    public Optional<StudentDto> delete(int id) {
         return studentdao.delete(id);
     }
 

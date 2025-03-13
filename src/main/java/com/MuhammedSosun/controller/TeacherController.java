@@ -3,9 +3,11 @@ package com.MuhammedSosun.controller;
 import com.MuhammedSosun.Utils.SpecialColor;
 import com.MuhammedSosun.dao.IDaoGenerics;
 import com.MuhammedSosun.dao.TeacherDao;
+import com.MuhammedSosun.dto.StudentDto;
 import com.MuhammedSosun.dto.TeacherDto;
 
 import java.util.List;
+import java.util.Optional;
 
 public class TeacherController implements IDaoGenerics<TeacherDto> {
 
@@ -26,10 +28,10 @@ public class TeacherController implements IDaoGenerics<TeacherDto> {
     }
 
     @Override
-    public TeacherDto findByid(Integer id) {
+    public Optional<TeacherDto> findByid(Integer id) {
         return teacherDao.findByid(id);
     }
-    public TeacherDto findByName(String name){
+    public Optional<TeacherDto> findByName(String name){
         return teacherDao.findByName(name);
     }
 
@@ -39,12 +41,12 @@ public class TeacherController implements IDaoGenerics<TeacherDto> {
     }
 
     @Override
-    public TeacherDto update(int id, TeacherDto teacherDto) {
+    public Optional<TeacherDto> update(int id, TeacherDto teacherDto) {
         return teacherDao.update(id,teacherDto);
     }
 
     @Override
-    public TeacherDto delete(int id) {
+    public Optional<TeacherDto> delete(int id) {
         return teacherDao.delete(id);
     }
 
