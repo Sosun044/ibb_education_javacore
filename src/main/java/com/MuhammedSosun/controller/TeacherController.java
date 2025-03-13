@@ -18,13 +18,13 @@ public class TeacherController implements IDaoGenerics<TeacherDto> {
     }
 
     @Override
-    public TeacherDto create(TeacherDto teacherDto) {
-        TeacherDto createdTeacher =teacherDao.create(teacherDto);
+    public Optional<TeacherDto> create(TeacherDto teacherDto) {
+        TeacherDto createdTeacher =teacherDao.create(teacherDto).orElseThrow(() -> new RuntimeException("Oluşturulamadı"));
         if (createdTeacher == null){
             System.out.println(SpecialColor.RED + " Öğretmen Olusturulamadı Geçerli bilgileri giriniz" + SpecialColor.RESET);
 
         }
-        return createdTeacher;
+        return Optional.of(createdTeacher);
     }
 
     @Override

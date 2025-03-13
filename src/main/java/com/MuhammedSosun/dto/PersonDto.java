@@ -7,13 +7,21 @@ abstract public class PersonDto {
     protected Integer id;
     protected String name;
     protected String surname;
+    protected String emailAddress;
+    protected String password;
     protected LocalDate birthDate;
     protected Date createDate;
+
+    //AES ENCRYPTED
+    private static final String AES_ALGORITHM ="AES";
+    private static final String MY_SECRET_KEY ="MY_SECRET_AES_KEY"; // GERÇEK PROJELERDE DİKKAT GÜVENLİ OLMASI GEREKİYOR
 
     public PersonDto() {
         this.id = 0;
         this.name = "name unknow";
         this.surname = "surname unknow";
+        this.emailAddress = "your_email address";
+        this.password = "Your_password";
         this.birthDate = LocalDate.now();
         this.createDate = new Date(System.currentTimeMillis());
     }

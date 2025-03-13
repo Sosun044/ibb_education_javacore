@@ -113,10 +113,10 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
     }
 
     @Override
-    public TeacherDto create(TeacherDto teacher) {
+    public Optional<TeacherDto> create(TeacherDto teacher) {
         teacherDtoList.add(teacher);
         fileHandler.saveToFile();
-        return teacher;
+        return Optional.of(teacher);
     }
 
     @Override
@@ -129,7 +129,8 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
          */
         return teacherDtoList.stream()
                 .filter(temp -> temp.id().equals(id))
-                .findFirst();
+                .findFirst()
+                .or(() -> Optional.empty());
     }
 
     @Override
@@ -142,7 +143,8 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
         return teacherDtoList
                 .stream()
                 .filter(s-> s.name().equalsIgnoreCase(name))
-                .findFirst();
+                .findFirst()
+                .or(() -> Optional.empty());
     }
 
     @Override
@@ -167,9 +169,9 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
     public Optional<TeacherDto> delete(int id) {
         Optional<TeacherDto> teacher = teacherDtoList.stream()
                 .filter(t -> t.id() == id).findFirst();
-        teacher.ifPresent(teacherDtoList::remove);
+        teacher.ifPresentOrElse(teacherDtoList::remove,() -> {throw new TeacherNotFoundException(id + "ID 'li Öğretmen bulunamadı");});
         fileHandler.saveToFile();
-        return Optional.of(teacher).orElseThrow(() -> new TeacherNotFoundException(id + "ID 'li Öğretmen bulunamadı"));
+        return teacher;
     }
     public ETeacherSubject teacherTypeMethod(){
         System.out.println("Öğretmen türünü seçiniz.\n1-HISOTRY\n2-BIOLOGY\n3-CHEMISTRY\n4-COMPUTER_SCIENCE\n5-MATHEMATICS");
@@ -261,12 +263,15 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
     private void searchTeacher(){
         System.out.print("Aranacak öğretmenin adı: ");
         String name = scanner.nextLine();
+
+
         try {
             TeacherDto teacher =  findByName(name).orElseThrow(() -> new TeacherNotFoundException("Öğretmen Bulunamadı" + name));
             System.out.println("Bulunan Öğretmen: " + teacher.fullName() + " - " + teacher.eTeacherSubject());
         }catch (TeacherNotFoundException e){
             System.out.println(e.getMessage());
         }
+
     }
     private void updateTeacher() {
         System.out.print("Güncellenecek öğretmenin ID'si: ");

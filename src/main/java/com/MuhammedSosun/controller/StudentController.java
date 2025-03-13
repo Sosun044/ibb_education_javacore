@@ -16,7 +16,7 @@ public class StudentController implements IDaoGenerics<StudentDto> {
     }
 
     @Override
-    public StudentDto create(StudentDto studentDto) {
+    public Optional<StudentDto> create(StudentDto studentDto) {
         return studentdao.create(studentDto);
     }
 

@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.Scanner;
 
 public class Studentdao implements IDaoGenerics<StudentDto>{
-    private ArrayList<StudentDto> studentDtoList = new ArrayList<>();
+    private ArrayList<StudentDto> studentDtoList;
     int maxId = 0;
     private static final String FILE_NAME = "student.txt";
 
@@ -23,6 +23,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
     }
 
     public Studentdao() {
+        studentDtoList = new ArrayList<>();
         createIfNotExist();
         loadStudentsListFromFile();
     }
@@ -119,7 +120,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
 
     @Override
     @Deprecated //Eski metot yenisini kullanın
-    public StudentDto create(StudentDto studentDto) {
+    public Optional<StudentDto> create(StudentDto studentDto) {
         try {
             // 📌 Verilerin doğrulanmasını sağlıyoruz
             validateStudent(studentDto);
@@ -140,7 +141,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
             saveToFile();
 
             System.out.println(studentDto+ SpecialColor.GREEN + "✅ Öğrenci başarıyla eklendi!" + SpecialColor.RESET);
-            return studentDto;
+            return Optional.of(studentDto);
 
         } catch (IllegalArgumentException e) {
             System.out.println(SpecialColor.RED + "⛔ Hata: " + e.getMessage() + SpecialColor.RESET);
@@ -357,7 +358,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
                 // 📌 Öğrenci nesnesini oluştur
                 // Integer id, String name, String surname, LocalDate birthDate,Double midTerm, Double finalTerm,EStudentType eStudentType
                 StudentDto newStudent = new StudentDto(maxId, name, surname,birthDate, midTerm, finalTerm, studentType);
-                StudentDto createdStudent = create(newStudent);
+                Optional<StudentDto> createdStudent = create(newStudent);
 
                 if (createdStudent != null) {
                     break; // 🔹 Başarıyla eklenirse döngüden çık
