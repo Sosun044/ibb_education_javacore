@@ -1,7 +1,8 @@
 package com.MuhammedSosun.dto;
 
+import com.MuhammedSosun.Utils.ERole;
 import com.MuhammedSosun.Utils.SpecialColor;
-import com.MuhammedSosun.dao.EStudentType;
+import com.MuhammedSosun.Utils.EStudentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -23,12 +24,14 @@ public class StudentDto extends PersonDto implements Serializable {
     private Double resultTerm = 0.0;
     private String status;
     private EStudentType eStudentType;
-
+    private ERole eRole;
     static {
         System.out.println(SpecialColor.BLUE + "Static StudentDto Yüklendi" + SpecialColor.RESET);
     }
     public StudentDto(){
         super();
+        this.eStudentType = EStudentType.OTHER;
+        this.eRole = ERole.STUDENT;
         this.midTerm= 0.0;
         this.finalTerm= 0.0;
         this.resultTerm = 0.0;
@@ -42,21 +45,43 @@ public class StudentDto extends PersonDto implements Serializable {
                 ", resultTerm=" + resultTerm +
                 ", status='" + status + '\'' +
                 ", eStudentType=" + eStudentType +
+                ", eRole=" + eRole +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", birthDate=" + birthDate +
+                ", createDate=" + createDate +
                 "} " + super.toString();
     }
 
     @Override
     void displayInfo() {
-
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Öğrenci")
+                .append(name)
+                .append("")
+                .append(surname)
+                .append("")
+                .append(eRole)
+                .append("")
+                .append(eStudentType)
+                .append("")
+                .append(midTerm)
+                .append("")
+                .append(finalTerm)
+                .append("")
+                .append(resultTerm);
+        System.out.println(stringBuilder.toString());
     }
 
-    public StudentDto(Integer id,String name,String surname,LocalDate birthDate, Double midTerm, Double finalTerm, EStudentType eStudentType) {
+    public StudentDto(Integer id,String name,String surname,LocalDate birthDate, Double midTerm, Double finalTerm, EStudentType eStudentType,ERole eRole) {
        super(id,name,surname,birthDate);
         this.midTerm = midTerm;
         this.finalTerm = finalTerm;
         this.resultTerm = calculateResult();
         this.status = determineStatus();
         this.eStudentType = eStudentType;
+        this.eRole = eRole;
 
     }
 
@@ -117,5 +142,13 @@ public class StudentDto extends PersonDto implements Serializable {
 
     public void seteStudentType(EStudentType eStudentType) {
         this.eStudentType = eStudentType;
+    }
+
+    public ERole geteRole() {
+        return eRole;
+    }
+
+    public void seteRole(ERole eRole) {
+        this.eRole = eRole;
     }
 }

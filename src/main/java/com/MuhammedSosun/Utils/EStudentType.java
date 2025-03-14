@@ -1,4 +1,4 @@
-package com.MuhammedSosun.dao;
+package com.MuhammedSosun.Utils;
 
 public enum EStudentType {
     UNDERGRADUATE,//LİSANS

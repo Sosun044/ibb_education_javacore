@@ -1,6 +1,6 @@
 package com.MuhammedSosun.tutorials.week_5;
 
-import com.MuhammedSosun.dao.EStudentType;
+import com.MuhammedSosun.Utils.EStudentType;
 
 import java.io.Serializable;
 import java.time.LocalDate;
