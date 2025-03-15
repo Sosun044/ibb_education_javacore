@@ -5,6 +5,7 @@ import com.MuhammedSosun.Utils.EStudentType;
 import com.MuhammedSosun.dto.StudentDto;
 import com.MuhammedSosun.exception.StudentNotFoundException;
 import com.MuhammedSosun.Utils.SpecialColor;
+import com.MuhammedSosun.iofiles.FileHandler;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -13,73 +14,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+
 public class Studentdao implements IDaoGenerics<StudentDto>{
-    private ArrayList<StudentDto> studentDtoList;
+    private final List<StudentDto> studentDtoList;
     int maxId = 0;
-    private static final String FILE_NAME = "student.txt";
+    //private static final String FILE_NAME = "student.txt";
 
     Scanner scanner = new Scanner(System.in);
+    private FileHandler fileHandler;
+
+    private String filePath;
 
 
     static {
+        System.out.println(SpecialColor.RED + " Static: StudentDao" + SpecialColor.RESET);
     }
 
     public Studentdao() {
+        this.fileHandler = new FileHandler();
+        this.fileHandler.setFilePath("student.txt");
         studentDtoList = new ArrayList<>();
-        createIfNotExist();
-        loadStudentsListFromFile();
-    }
-    private void createIfNotExist(){
-        File file = new File(FILE_NAME);
-        if (!file.exists()){
-            try {
-                if (file.createNewFile()){
-                    System.out.println(SpecialColor.YELLOW + " Dosya Oluşturuldu "+SpecialColor.RESET);
-                }
-            }catch (IOException io){
-                System.out.println(SpecialColor.RED + " Dosya olusturulurken hata olustu"+SpecialColor.RESET);
-                io.printStackTrace();
-            }
-        }
-    }
-
-    private void saveToFile() {
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FILE_NAME,true))) {
-            for (StudentDto student:studentDtoList){
-                bufferedWriter.write(studentToCsv(student) + "\n");
-            }
-            System.out.println(SpecialColor.YELLOW + "Öğrenci dosyaya kaydedildi" + SpecialColor.RESET);
-        } catch (IOException io) {
-            System.out.println(SpecialColor.RED + " Dosya Ekleme Hatası" + SpecialColor.RESET);
-            io.printStackTrace();
-        }
-    }
-
-    private void loadStudentsListFromFile() {
-        // Listedeki verileri temizle
-        studentDtoList.clear();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                StudentDto student = csvToStudent(line);
-                if (student != null) {
-                    studentDtoList.add(student);
-                }
-            }
-            //studentCounter = studentDtoList.size();
-            // ✅ Öğrenciler içindeki en büyük ID'yi bul
-            /*
-            studentCounter = studentDtoList.stream()
-                    .mapToInt(StudentDto::getId)
-                    .max()
-                    .orElse(0); // Eğer öğrenci yoksa sıfır başlat
-            */
-
-
-        } catch (IOException e) {
-            System.out.println(SpecialColor.RED + "Dosya okuma hatası!" + SpecialColor.RESET);
-            e.printStackTrace();
-        }
+        this.fileHandler.createFileIfNotExists();
+        this.fileHandler.readFile(this.fileHandler.getFilePath());
     }
     private String studentToCsv(StudentDto student) {
         return
@@ -141,7 +97,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
             // ID'yi artırıp nesneye atıyoruz
             // 📌 **ID artık public static olduğu için her sınıftan erişilebilir!**
             studentDtoList.add(studentDto);
-            saveToFile();
+            this.fileHandler.writeFile(this.fileHandler.getFilePath());
 
             System.out.println(studentDto+ SpecialColor.GREEN + "✅ Öğrenci başarıyla eklendi!" + SpecialColor.RESET);
             return Optional.of(studentDto);
@@ -175,7 +131,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
     }
     @Override
     @SuppressWarnings("unchacked") // derleyici uyarılarını bastırmak için kullanırız
-    public ArrayList<StudentDto> list() {
+    public List<StudentDto> list() {
         if (studentDtoList.isEmpty()) {
             System.out.println(SpecialColor.RED + " Öğrenci Yoktur" + SpecialColor.RESET);
             throw new StudentNotFoundException("Öğrenci Yoktur");
@@ -244,7 +200,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
                 //Güncellenmiş öğrenci bilgileri
                 System.out.println(SpecialColor.BLUE + temp + "Öğrenci Bilgileri Güncellendi" + SpecialColor.RESET);
                 //Dosayay kaydet
-                saveToFile();
+                this.fileHandler.writeFile(this.fileHandler.getFilePath());
                 return Optional.of(temp);
             }
         }
@@ -261,7 +217,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
         if (removed) {
             System.out.println(SpecialColor.BLUE + " Öğrenci Silindi " + SpecialColor.RESET);
             // File Ekle
-            saveToFile();
+            this.fileHandler.writeFile(this.fileHandler.getFilePath());
             return Optional.empty();
         } else {
             System.out.println(SpecialColor.BLUE + " Öğrenci Silinmedi " + SpecialColor.RESET);
@@ -272,7 +228,7 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
         if (studentToDelete.isPresent()){
             studentDtoList.remove(studentToDelete.get());
             System.out.println(SpecialColor.BLUE + " Öğrenci Silindi " + SpecialColor.RESET);
-            saveToFile();
+            this.fileHandler.writeFile(this.fileHandler.getFilePath());
             return studentToDelete;
         }
         else {
@@ -551,5 +507,12 @@ public class Studentdao implements IDaoGenerics<StudentDto>{
             }
 
         }
+    }
+}
+class Test{
+    public static void main(String[] args) {
+        Studentdao studentdao = new Studentdao();
+        studentdao.chooise();
+
     }
 }

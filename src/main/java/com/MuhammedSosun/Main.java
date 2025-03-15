@@ -2,7 +2,6 @@ package com.MuhammedSosun;
 
 import com.MuhammedSosun.controller.StudentController;
 import com.MuhammedSosun.controller.TeacherController;
-import com.MuhammedSosun.dao.TeacherDao;
 
 import java.util.Scanner;
 
