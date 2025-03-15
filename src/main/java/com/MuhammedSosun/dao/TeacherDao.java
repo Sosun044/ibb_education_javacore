@@ -23,6 +23,10 @@ public class TeacherDao implements IDaoGenerics<TeacherDto> {
         fileHandler.createIfNotExist();
         fileHandler.loadStudentsListFromFile();
     }
+
+    static {
+        System.out.println(SpecialColor.RED + " Static: TeacherDao" + SpecialColor.RESET);
+    }
     private class FileHandler{
         private void createIfNotExist() {
             File file = new File(FILE_NAME);
